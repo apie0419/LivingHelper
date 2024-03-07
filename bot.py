@@ -25,18 +25,22 @@ def get_mtr_lines():
     return [162, 148, 100]
 
 def get_region():
-    return [1, 3]
+    return [1]
 
-def get_params(mrtline, region):
-    mrt = {
-        162: [4231, 4232, 4184, 4233, 4234, 4221],
-        148: [4244, 4184, 4245, 4248, 4249],
-        100: [4187, 4190, 4189]
-    }
+def get_mtr_station_list(mrtline):
+  mrtmap = {
+    162: [4231, 4232, 4184, 4233, 4234, 4221],  
+    148: [4244, 4184, 4245, 4248, 4249],
+    100: [4187, 4190, 4189]
+  }
+  return mrtmap[mrtline]
+
+def get_params(mrtline, region, station):
     wanted_columns = ["title", "post_id", "floor_str", "price", "price_unit", "photo_list", "surrounding"]
     filter_params = {
         "region": str(region),
-        "mrtcoods": ",".join(list(map(str, mrt[mrtline]))),
+        "mrtline": str(mrtline),
+        "mrtcoods": str(station),
         "searchtype": "4",
         "rentprice": "12000,22000",
         "showMore": "1",
@@ -302,10 +306,11 @@ if __name__ == "__main__":
     houses = list()
     for page in range(1, 6):
         for mrt_line in get_mtr_lines():
-            for region in get_region():
-                filter_params, sort_params = get_params(mrt_line, region)
-                hs = search_houses(filter_params, sort_params, page)
-                houses.extend(hs)
+            for mrt_station in get_mtr_station_list(mrt_line):
+                for region in get_region():
+                    filter_params, sort_params = get_params(mrt_line, region, mrt_station)
+                    hs = search_houses(filter_params, sort_params, page)
+                    houses.extend(hs)
     
     not_visited_houses = list()
     visited_houses = get_visited_houses()
